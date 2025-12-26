@@ -1,3 +1,4 @@
+
 package com.infosys.budgettracker.repository;
 
 import com.infosys.budgettracker.model.TransactionEntity;
@@ -10,4 +11,5 @@ import java.util.List;
 @Repository
 public interface TransactionRepository extends JpaRepository<TransactionEntity, Long> {
     List<TransactionEntity> findByUser(UserEntity user);
+    List<TransactionEntity> findByUserId(Long userId); // add this - used by admin
 }

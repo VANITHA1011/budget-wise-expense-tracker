@@ -1,137 +1,16 @@
-/*package com.infosys.budgettracker.controller;
-
-import com.infosys.budgettracker.model.UserEntity;
-import com.infosys.budgettracker.service.UserService;
-import com.infosys.budgettracker.service.JwtUtil;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-@RestController
-@RequestMapping("/api")
-public class TestController {
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    // DTO for signup request
-    @Getter
-    @Setter
-    public static class SignupRequest {
-        private String username;
-        private String password;
-        private String role; // USER or ADMIN
-    }
-
-    // DTO for login request
-    @Getter
-    @Setter
-    public static class LoginRequest {
-        private String username;
-        private String password;
-        private String role; // Optional, can verify role later
-    }
-
-    @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody SignupRequest signupRequest) {
-        UserEntity user = new UserEntity();
-        user.setUsername(signupRequest.getUsername());
-        user.setPassword(signupRequest.getPassword());
-        user.setRole(signupRequest.getRole());
-
-        userService.signup(user.getUsername(), user.getPassword(), user.getRole());
-        return ResponseEntity.ok("User registered successfully!");
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
-        try {
-            String token = userService.login(loginRequest.getUsername(), loginRequest.getPassword());
-            return ResponseEntity.ok(token);
-        } catch (Exception e) {
-            return ResponseEntity.status(401).body(e.getMessage());
-        }
-    }
-}*/
-/*package com.infosys.budgettracker.controller;
-
-import com.infosys.budgettracker.model.UserEntity;
-import com.infosys.budgettracker.service.UserService;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-@RestController
-@RequestMapping("/api")
-public class TestController {
-
-    @Autowired
-    private UserService userService;
-
-    // Signup DTO
-    @Getter
-    @Setter
-    public static class SignupRequest {
-        private String username;
-        private String email;
-        private String password;
-        private String role; // USER or ADMIN
-    }
-
-    // Login DTO
-    @Getter
-    @Setter
-    public static class LoginRequest {
-        private String username;
-        private String password;
-    }
-
-    @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody SignupRequest signupRequest) {
-        try {
-            userService.signup(
-                    signupRequest.getUsername(),
-                    signupRequest.getEmail(),
-                    signupRequest.getPassword(),
-                    signupRequest.getRole()
-            );
-            return ResponseEntity.ok("User registered successfully!");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
-        try {
-            String token = userService.login(
-                    loginRequest.getUsername(),
-                    loginRequest.getPassword()
-            );
-            return ResponseEntity.ok(token);
-        } catch (Exception e) {
-            return ResponseEntity.status(401).body(e.getMessage());
-        }
-    }
-}
-
-*/
 package com.infosys.budgettracker.controller;
 
 import com.infosys.budgettracker.model.UserEntity;
 import com.infosys.budgettracker.service.UserService;
+import com.infosys.budgettracker.repository.UserRepository;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -139,6 +18,9 @@ public class TestController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Getter @Setter
     public static class SignupRequest {
@@ -155,30 +37,39 @@ public class TestController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody SignupRequest signupRequest) {
+    public ResponseEntity<?> signup(@RequestBody SignupRequest signupRequest) {
         try {
-            userService.signup(
+            UserEntity saved = userService.signup(
                     signupRequest.getUsername(),
                     signupRequest.getEmail(),
                     signupRequest.getPassword(),
                     signupRequest.getRole()
             );
-            return ResponseEntity.ok("User registered successfully!");
+            return ResponseEntity.ok(Map.of("message", "User registered successfully", "username", saved.getUsername()));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
             String token = userService.login(
                     loginRequest.getUsername(),
                     loginRequest.getPassword()
             );
-            return ResponseEntity.ok(token);
+
+            // find role from DB to return in response
+            Optional<UserEntity> opt = userRepository.findByUsername(loginRequest.getUsername());
+            String role = opt.map(UserEntity::getRole).orElse("USER");
+
+            return ResponseEntity.ok(Map.of(
+                    "token", token,
+                    "username", loginRequest.getUsername(),
+                    "role", role
+            ));
         } catch (Exception e) {
-            return ResponseEntity.status(401).body(e.getMessage());
+            return ResponseEntity.status(401).body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -194,3 +85,4 @@ public class TestController {
         }
     }
 }
+

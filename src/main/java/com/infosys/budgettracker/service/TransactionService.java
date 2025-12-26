@@ -1,510 +1,126 @@
-/*package com.infosys.budgettracker.service;
 
-import com.infosys.budgettracker.model.TransactionEntity;
-import com.infosys.budgettracker.model.UserEntity;
-import com.infosys.budgettracker.repository.TransactionRepository;
-import com.infosys.budgettracker.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-
-@Service
-public class TransactionService {
-
-    @Autowired
-    private TransactionRepository transactionRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    public TransactionEntity addTransaction(TransactionEntity transaction, String authHeader) throws Exception {
-        String token = authHeader.replace("Bearer ", "");
-        String username = jwtUtil.extractUsername(token);
-
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new Exception("User not found"));
-
-        transaction.setUser(user);
-
-        // Optional: validate type
-        if (!transaction.getType().equalsIgnoreCase("INCOME") &&
-            !transaction.getType().equalsIgnoreCase("EXPENSE")) {
-            throw new Exception("Transaction type must be INCOME or EXPENSE");
-        }
-
-        return transactionRepository.save(transaction);
-    }
-
-    public List<TransactionEntity> getAllTransactions(String authHeader) throws Exception {
-        String token = authHeader.replace("Bearer ", "");
-        String username = jwtUtil.extractUsername(token);
-
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new Exception("User not found"));
-
-        return transactionRepository.findByUser(user);
-    }
-}*/
-/*package com.infosys.budgettracker.service;
-
-import com.infosys.budgettracker.model.TransactionEntity;
-import com.infosys.budgettracker.model.UserEntity;
-import com.infosys.budgettracker.repository.TransactionRepository;
-import com.infosys.budgettracker.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
-
-@Service
-public class TransactionService {
-
-    @Autowired
-    private TransactionRepository transactionRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    // Add Transaction
-    public TransactionEntity addTransaction(TransactionEntity transaction, String authHeader) throws Exception {
-        String token = authHeader.replace("Bearer ", "");
-        String username = jwtUtil.extractUsername(token);
-
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new Exception("User not found"));
-
-        transaction.setUser(user);
-
-        // Validate type
-        if (!transaction.getType().equalsIgnoreCase("INCOME") &&
-            !transaction.getType().equalsIgnoreCase("EXPENSE")) {
-            transaction.setType("EXPENSE");
-        }
-
-        return transactionRepository.save(transaction);
-    }
-
-    // Get all transactions of logged-in user
-    public List<TransactionEntity> getAllTransactions(String authHeader) throws Exception {
-        String token = authHeader.replace("Bearer ", "");
-        String username = jwtUtil.extractUsername(token);
-
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new Exception("User not found"));
-
-        return transactionRepository.findByUser(user);
-    }
-
-    // Update transaction
-    public TransactionEntity updateTransaction(Long id, TransactionEntity updatedTransaction, String authHeader) throws Exception {
-        String token = authHeader.replace("Bearer ", "");
-        String username = jwtUtil.extractUsername(token);
-
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new Exception("User not found"));
-
-        TransactionEntity transaction = transactionRepository.findById(id)
-                .orElseThrow(() -> new Exception("Transaction not found"));
-
-        if (!transaction.getUser().getId().equals(user.getId())) {
-            throw new Exception("You cannot edit this transaction");
-        }
-
-        // Update fields
-        transaction.setType(updatedTransaction.getType());
-        transaction.setCategory(updatedTransaction.getCategory());
-        transaction.setAmount(updatedTransaction.getAmount());
-        transaction.setDescription(updatedTransaction.getDescription());
-        transaction.setAccount(updatedTransaction.getAccount());
-        transaction.setDate(updatedTransaction.getDate());
-
-        return transactionRepository.save(transaction);
-    }
-
-    // Delete transaction
-    public void deleteTransaction(Long id, String authHeader) throws Exception {
-        String token = authHeader.replace("Bearer ", "");
-        String username = jwtUtil.extractUsername(token);
-
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new Exception("User not found"));
-
-        TransactionEntity transaction = transactionRepository.findById(id)
-                .orElseThrow(() -> new Exception("Transaction not found"));
-
-        if (!transaction.getUser().getId().equals(user.getId())) {
-            throw new Exception("You cannot delete this transaction");
-        }
-
-        transactionRepository.delete(transaction);
-    }
-}*/
-/*package com.infosys.budgettracker.service;
-
-import com.infosys.budgettracker.dto.TransactionDTO;
-import com.infosys.budgettracker.model.TransactionEntity;
-import com.infosys.budgettracker.model.UserEntity;
-import com.infosys.budgettracker.repository.TransactionRepository;
-import com.infosys.budgettracker.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-
-@Service
-public class TransactionService {
-
-    @Autowired
-    private TransactionRepository transactionRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    // Add Transaction
-    public TransactionEntity addTransaction(TransactionEntity transaction, String authHeader) throws Exception {
-        String token = authHeader.replace("Bearer ", "");
-        String username = jwtUtil.extractUsername(token);
-
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new Exception("User not found"));
-
-        transaction.setUser(user);
-
-        // Validate type
-        if (!transaction.getType().equalsIgnoreCase("INCOME") &&
-            !transaction.getType().equalsIgnoreCase("EXPENSE")) {
-            transaction.setType("EXPENSE");
-        }
-
-        return transactionRepository.save(transaction);
-    }
-
-    // Get all transactions of logged-in user as DTO
-    public List<TransactionDTO> getAllTransactions(String authHeader) throws Exception {
-        String token = authHeader.replace("Bearer ", "");
-        String username = jwtUtil.extractUsername(token);
-
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new Exception("User not found"));
-
-        return transactionRepository.findByUser(user).stream()
-                .map(t -> new TransactionDTO(
-                        t.getId(),
-                        t.getType(),
-                        t.getCategory(),
-                        t.getAmount(),
-                        t.getDescription(),
-                        t.getAccount(),
-                        t.getDate(),
-                        t.getUser().getUsername() // only username
-                ))
-                .toList();
-    }
-
-    // Update transaction
-    public TransactionEntity updateTransaction(Long id, TransactionEntity updatedTransaction, String authHeader) throws Exception {
-        String token = authHeader.replace("Bearer ", "");
-        String username = jwtUtil.extractUsername(token);
-
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new Exception("User not found"));
-
-        TransactionEntity transaction = transactionRepository.findById(id)
-                .orElseThrow(() -> new Exception("Transaction not found"));
-
-        if (!transaction.getUser().getId().equals(user.getId())) {
-            throw new Exception("You cannot edit this transaction");
-        }
-
-        // Update fields
-        transaction.setType(updatedTransaction.getType());
-        transaction.setCategory(updatedTransaction.getCategory());
-        transaction.setAmount(updatedTransaction.getAmount());
-        transaction.setDescription(updatedTransaction.getDescription());
-        transaction.setAccount(updatedTransaction.getAccount());
-        transaction.setDate(updatedTransaction.getDate());
-
-        return transactionRepository.save(transaction);
-    }
-
-    // Delete transaction
-    public void deleteTransaction(Long id, String authHeader) throws Exception {
-        String token = authHeader.replace("Bearer ", "");
-        String username = jwtUtil.extractUsername(token);
-
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new Exception("User not found"));
-
-        TransactionEntity transaction = transactionRepository.findById(id)
-                .orElseThrow(() -> new Exception("Transaction not found"));
-
-        if (!transaction.getUser().getId().equals(user.getId())) {
-            throw new Exception("You cannot delete this transaction");
-        }
-
-        transactionRepository.delete(transaction);
-    }
-}*/
-/*package com.infosys.budgettracker.service;
-
-import com.infosys.budgettracker.dto.TransactionDTO;
-import com.infosys.budgettracker.model.TransactionEntity;
-import com.infosys.budgettracker.model.UserEntity;
-import com.infosys.budgettracker.repository.TransactionRepository;
-import com.infosys.budgettracker.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-
-@Service
-public class TransactionService {
-
-    @Autowired
-    private TransactionRepository transactionRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    // ✅ Add Transaction (returns DTO without user)
-    public TransactionDTO addTransaction(TransactionEntity transaction, String authHeader) throws Exception {
-        String token = authHeader.replace("Bearer ", "");
-        String username = jwtUtil.extractUsername(token);
-
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new Exception("User not found"));
-
-        transaction.setUser(user);
-
-        if (!transaction.getType().equalsIgnoreCase("INCOME") &&
-            !transaction.getType().equalsIgnoreCase("EXPENSE")) {
-            transaction.setType("EXPENSE");
-        }
-
-        TransactionEntity saved = transactionRepository.save(transaction);
-
-        // Return DTO only
-        return new TransactionDTO(
-                saved.getId(),
-                saved.getType(),
-                saved.getCategory(),
-                saved.getAmount(),
-                saved.getDescription(),
-                saved.getAccount(),
-                saved.getDate(),
-                saved.getUser().getUsername()
-        );
-    }
-
-    // ✅ Get all transactions as DTO
-    public List<TransactionDTO> getAllTransactions(String authHeader) throws Exception {
-        String token = authHeader.replace("Bearer ", "");
-        String username = jwtUtil.extractUsername(token);
-
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new Exception("User not found"));
-
-        return transactionRepository.findByUser(user).stream()
-                .map(t -> new TransactionDTO(
-                        t.getId(),
-                        t.getType(),
-                        t.getCategory(),
-                        t.getAmount(),
-                        t.getDescription(),
-                        t.getAccount(),
-                        t.getDate(),
-                        t.getUser().getUsername()
-                ))
-                .toList();
-    }
-
-    // Update Transaction
-    public TransactionEntity updateTransaction(Long id, TransactionEntity updatedTransaction, String authHeader) throws Exception {
-        String token = authHeader.replace("Bearer ", "");
-        String username = jwtUtil.extractUsername(token);
-
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new Exception("User not found"));
-
-        TransactionEntity transaction = transactionRepository.findById(id)
-                .orElseThrow(() -> new Exception("Transaction not found"));
-
-        if (!transaction.getUser().getId().equals(user.getId())) {
-            throw new Exception("You cannot edit this transaction");
-        }
-
-        transaction.setType(updatedTransaction.getType());
-        transaction.setCategory(updatedTransaction.getCategory());
-        transaction.setAmount(updatedTransaction.getAmount());
-        transaction.setDescription(updatedTransaction.getDescription());
-        transaction.setAccount(updatedTransaction.getAccount());
-        transaction.setDate(updatedTransaction.getDate());
-
-        return transactionRepository.save(transaction);
-    }
-
-    // Delete Transaction
-    public void deleteTransaction(Long id, String authHeader) throws Exception {
-        String token = authHeader.replace("Bearer ", "");
-        String username = jwtUtil.extractUsername(token);
-
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new Exception("User not found"));
-
-        TransactionEntity transaction = transactionRepository.findById(id)
-                .orElseThrow(() -> new Exception("Transaction not found"));
-
-        if (!transaction.getUser().getId().equals(user.getId())) {
-            throw new Exception("You cannot delete this transaction");
-        }
-
-        transactionRepository.delete(transaction);
-    }
-}*/
 package com.infosys.budgettracker.service;
 
 import com.infosys.budgettracker.dto.TransactionDTO;
-import com.infosys.budgettracker.model.TransactionEntity;
-import com.infosys.budgettracker.model.UserEntity;
-import com.infosys.budgettracker.repository.TransactionRepository;
-import com.infosys.budgettracker.repository.UserRepository;
+import com.infosys.budgettracker.model.*;
+import com.infosys.budgettracker.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
 
-    @Autowired
-    private TransactionRepository transactionRepository;
+    @Autowired private TransactionRepository transactionRepository;
+    @Autowired private SavingsGoalRepository savingsGoalRepository;
+    @Autowired private UserRepository userRepository;
+    @Autowired private JwtUtil jwtUtil;
+    @Autowired private TransactionHandler transactionHandler;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    // Add Transaction (returns DTO)
-    public TransactionDTO addTransaction(TransactionEntity transaction, String authHeader) throws Exception {
+    // 🔐 Helper
+    private UserEntity getUser(String authHeader) throws Exception {
         String token = authHeader.replace("Bearer ", "");
         String username = jwtUtil.extractUsername(token);
-
-        UserEntity user = userRepository.findByUsername(username)
+        return userRepository.findByUsername(username)
                 .orElseThrow(() -> new Exception("User not found"));
-
-        transaction.setUser(user);
-
-        if (!transaction.getType().equalsIgnoreCase("INCOME") &&
-            !transaction.getType().equalsIgnoreCase("EXPENSE")) {
-            transaction.setType("EXPENSE");
-        }
-
-        TransactionEntity saved = transactionRepository.save(transaction);
-
-        return new TransactionDTO(
-                saved.getId(),
-                saved.getType(),
-                saved.getCategory(),
-                saved.getAmount(),
-                saved.getDescription(),
-                saved.getAccount(),
-                saved.getDate(),
-                saved.getUser().getUsername()
-        );
     }
 
-    // Get all transactions as DTO
+    // ✅ ADD TRANSACTION
+    @Transactional
+    public TransactionDTO addTransaction(TransactionEntity tx, String authHeader) throws Exception {
+
+        UserEntity user = getUser(authHeader);
+        tx.setUser(user);
+
+        if (tx.getSavingsGoal() != null && tx.getSavingsGoal().getId() != null) {
+            SavingsGoalEntity goal = savingsGoalRepository
+                    .findById(tx.getSavingsGoal().getId())
+                    .orElseThrow(() -> new Exception("Savings goal not found"));
+            tx.setSavingsGoal(goal);
+
+            if ("INCOME".equalsIgnoreCase(tx.getType())) {
+                if (tx.getSavingsAllocationAmount() == null || tx.getSavingsAllocationAmount() <= 0) {
+                    tx.setSavingsAllocationAmount(tx.getAmount());
+                }
+            }
+        } else {
+            tx.setSavingsGoal(null);
+            tx.setSavingsAllocationAmount(null);
+        }
+
+        TransactionEntity saved = transactionRepository.save(tx);
+
+        // 🔥 update budget + goal
+        transactionHandler.updateBudgetAndGoal(saved, user, saved.getAmount());
+
+        return TransactionDTO.from(saved);
+    }
+
+    // ✅ GET ALL TRANSACTIONS  🔥🔥 THIS WAS MISSING
     public List<TransactionDTO> getAllTransactions(String authHeader) throws Exception {
-        String token = authHeader.replace("Bearer ", "");
-        String username = jwtUtil.extractUsername(token);
 
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new Exception("User not found"));
+        UserEntity user = getUser(authHeader);
 
-        return transactionRepository.findByUser(user).stream()
-                .map(t -> new TransactionDTO(
-                        t.getId(),
-                        t.getType(),
-                        t.getCategory(),
-                        t.getAmount(),
-                        t.getDescription(),
-                        t.getAccount(),
-                        t.getDate(),
-                        t.getUser().getUsername()
-                ))
-                .toList();
+        return transactionRepository.findByUser(user)
+                .stream()
+                .map(TransactionDTO::from)
+                .collect(Collectors.toList());
     }
 
-    // Update transaction (returns DTO)
-    public TransactionDTO updateTransaction(Long id, TransactionEntity updatedTransaction, String authHeader) throws Exception {
-        String token = authHeader.replace("Bearer ", "");
-        String username = jwtUtil.extractUsername(token);
+    // ✅ UPDATE TRANSACTION
+    @Transactional
+    public TransactionDTO updateTransaction(Long id, TransactionEntity updated, String authHeader) throws Exception {
 
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new Exception("User not found"));
-
-        TransactionEntity transaction = transactionRepository.findById(id)
+        UserEntity user = getUser(authHeader);
+        TransactionEntity old = transactionRepository.findById(id)
                 .orElseThrow(() -> new Exception("Transaction not found"));
 
-        if (!transaction.getUser().getId().equals(user.getId())) {
-            throw new Exception("You cannot edit this transaction");
+        // 🔁 reverse old impact
+        transactionHandler.updateBudgetAndGoal(old, user, -old.getAmount());
+
+        old.setType(updated.getType());
+        old.setCategory(updated.getCategory());
+        old.setAmount(updated.getAmount());
+        old.setDescription(updated.getDescription());
+        old.setAccount(updated.getAccount());
+        old.setDate(updated.getDate());
+
+        if (updated.getSavingsGoal() != null && updated.getSavingsGoal().getId() != null) {
+            SavingsGoalEntity goal = savingsGoalRepository
+                    .findById(updated.getSavingsGoal().getId())
+                    .orElseThrow(() -> new Exception("Savings goal not found"));
+            old.setSavingsGoal(goal);
+
+            old.setSavingsAllocationAmount(
+                    updated.getSavingsAllocationAmount() != null
+                            ? updated.getSavingsAllocationAmount()
+                            : updated.getAmount()
+            );
+        } else {
+            old.setSavingsGoal(null);
+            old.setSavingsAllocationAmount(null);
         }
 
-        transaction.setType(updatedTransaction.getType());
-        transaction.setCategory(updatedTransaction.getCategory());
-        transaction.setAmount(updatedTransaction.getAmount());
-        transaction.setDescription(updatedTransaction.getDescription());
-        transaction.setAccount(updatedTransaction.getAccount());
-        transaction.setDate(updatedTransaction.getDate());
+        TransactionEntity saved = transactionRepository.save(old);
 
-        TransactionEntity saved = transactionRepository.save(transaction);
+        // 🔥 apply new impact
+        transactionHandler.updateBudgetAndGoal(saved, user, saved.getAmount());
 
-        return new TransactionDTO(
-                saved.getId(),
-                saved.getType(),
-                saved.getCategory(),
-                saved.getAmount(),
-                saved.getDescription(),
-                saved.getAccount(),
-                saved.getDate(),
-                saved.getUser().getUsername()
-        );
+        return TransactionDTO.from(saved);
     }
 
-    // Delete Transaction
+    // ✅ DELETE TRANSACTION
+    @Transactional
     public void deleteTransaction(Long id, String authHeader) throws Exception {
-        String token = authHeader.replace("Bearer ", "");
-        String username = jwtUtil.extractUsername(token);
 
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new Exception("User not found"));
-
-        TransactionEntity transaction = transactionRepository.findById(id)
+        UserEntity user = getUser(authHeader);
+        TransactionEntity tx = transactionRepository.findById(id)
                 .orElseThrow(() -> new Exception("Transaction not found"));
 
-        if (!transaction.getUser().getId().equals(user.getId())) {
-            throw new Exception("You cannot delete this transaction");
-        }
-
-        transactionRepository.delete(transaction);
+        transactionHandler.updateBudgetAndGoal(tx, user, -tx.getAmount());
+        transactionRepository.delete(tx);
     }
 }
-
-
-
-
